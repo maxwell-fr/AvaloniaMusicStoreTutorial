@@ -1,6 +1,6 @@
 ﻿namespace AvaloniaMusicStore.ViewModels;
 
-public class AlbumViewModel
+public class AlbumViewModel : ViewModelBase
 {
     
 }
