@@ -2,7 +2,7 @@
 using Avalonia.ReactiveUI;
 using System;
 
-namespace Avalonia_MusicStore;
+namespace AvaloniaMusicStore;
 
 class Program
 {
