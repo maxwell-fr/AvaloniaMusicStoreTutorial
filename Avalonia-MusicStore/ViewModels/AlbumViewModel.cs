@@ -1,4 +1,7 @@
-﻿using AvaloniaMusicStore.Models;
+﻿using System.Threading.Tasks;
+using Avalonia.Media.Imaging;
+using AvaloniaMusicStore.Models;
+using ReactiveUI;
 
 namespace AvaloniaMusicStore.ViewModels;
 
@@ -13,4 +16,37 @@ public class AlbumViewModel : ViewModelBase
 
    public string Artist => _album.Artist;
    public string Title => _album.Title;
+
+   private Bitmap? _cover;
+
+   public Bitmap? Cover
+   {
+      get => _cover;
+      private set => this.RaiseAndSetIfChanged(ref _cover, value);
+   }
+
+   public async Task LoadCover()
+   {
+      await using (var imageStream = await _album.LoadCoverBitmapAsync())
+      {
+         Cover = await Task.Run(() => Bitmap.DecodeToWidth(imageStream, 400));
+      }
+   }
+
+   public async Task SaveToDiskAsync()
+   {
+      await _album.SaveAsync();
+      if (Cover is not null)
+      {
+         var bitmap = Cover;
+
+         await Task.Run(() =>
+         {
+            using (var fs = _album.SaveCoverBitmapStream())
+            {
+               bitmap.Save(fs);
+            }
+         });
+      }
+   }
 }

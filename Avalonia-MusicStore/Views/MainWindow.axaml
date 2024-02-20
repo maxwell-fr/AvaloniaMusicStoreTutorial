@@ -3,6 +3,7 @@
         xmlns:vm="using:AvaloniaMusicStore.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:AvaloniaMusicStore.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="AvaloniaMusicStore.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
@@ -19,22 +20,38 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-        <Panel Margin="40">
-            <ExperimentalAcrylicBorder IsHitTestVisible="False">
-                <ExperimentalAcrylicBorder.Material>
-                    <ExperimentalAcrylicMaterial
-                        BackgroundSource="Digger"
-                        TintColor="Black"
-                        TintOpacity="1"
-                        MaterialOpacity="0.65"/>
-                </ExperimentalAcrylicBorder.Material>
-            </ExperimentalAcrylicBorder>
+    <Panel>
+        <ExperimentalAcrylicBorder IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial
+                    BackgroundSource="Digger"
+                    TintColor="Black"
+                    TintOpacity="1"
+                    MaterialOpacity="0.65"/>
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
 
+        <Panel Margin="40">
             <Button HorizontalAlignment="Right"
                     VerticalAlignment="Top"
                     Command="{Binding BuyMusicCommand}">
                 <PathIcon Data="{StaticResource store_microsoft_regular}" />
             </Button>
         </Panel>
+
+
+        <ItemsControl Margin="0 40 0 0" ItemsSource="{Binding Albums}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <views:AlbumView Margin="0 0 20 20"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Panel>
 
     </Window>

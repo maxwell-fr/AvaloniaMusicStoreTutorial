@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading;
 using AvaloniaMusicStore.Models;
 using ReactiveUI;
 
@@ -11,8 +14,11 @@ public class MusicStoreViewModel : ViewModelBase
     private string? _searchText;
     private bool _isBusy;
     private AlbumViewModel? _selectedAlbum;
+    private CancellationTokenSource? _cancellationTokenSource;
 
     public ObservableCollection<AlbumViewModel> SearchResults { get; } = new();
+
+    public ReactiveCommand<Unit, AlbumViewModel?> BuyMusicCommand { get; }
 
     public AlbumViewModel? SelectedAlbum
     {
@@ -38,10 +44,18 @@ public class MusicStoreViewModel : ViewModelBase
             .Throttle(TimeSpan.FromMilliseconds(400))
             .ObserveOn(RxApp.MainThreadScheduler)
             .Subscribe(DoSearch!);
+        BuyMusicCommand = ReactiveCommand.Create(() =>
+        {
+            return SelectedAlbum;
+        });
     }
 
     private async void DoSearch(string s)
     {
+        _cancellationTokenSource?.Cancel();
+        _cancellationTokenSource = new CancellationTokenSource();
+        var cancellationToken = _cancellationTokenSource.Token;
+
         IsBusy = true;
         SearchResults.Clear();
 
@@ -54,8 +68,24 @@ public class MusicStoreViewModel : ViewModelBase
                 var vm = new AlbumViewModel(album);
                 SearchResults.Add(vm);
             }
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                LoadCovers(cancellationToken);
+            }
         }
 
         IsBusy = false;
+    }
+
+    private async void LoadCovers(CancellationToken cancellationToken)
+    {
+        foreach (var album in SearchResults.ToList())
+        {
+            await album.LoadCover();
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+        }
     }
 }
